@@ -1,27 +1,36 @@
-require("dotenv").config();
-const connectDB = require("./config/db");
-const User = require("./models/user");
+import express from "express";
+import dotenv from "dotenv";
+import cors from "cors";
+import mongoose from "mongoose";
 
-async function run() {
-  console.log("🚀 Starting app...");
+//Import Routes
+import videoChatRoutes from "./components/videoChat/videoChat.js";
+import chatSystemRoutes from "./components/chatSystem/chatSystem.js";
+import authRoutes from "./middleware/auth.js";
+import appointmentRoutes from "./routes/appointment.js";
 
-  await connectDB(); // wait for DB connection
+dotenv.config();
 
-  try {
-    const user = new User({
-      name: "Ayush",
-      age: 23,
-      email: "ayush@example.com",
-      skills: ["Java", "Spring Boot", "MongoDB"]
-    });
+const app = express();
+app.use(express.json());
+app.use(cors());
 
-    await user.save();
-    console.log("✅ User Created:", user);
-  } catch (err) {
-    console.error("❌ Error:", err.message);
-  }
+//MONGODB CONNECTION
+mongoose.connect(process.env.MONGO_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log("MongoDB connected"))
+.catch(err => console.error("MongoDB connection error:", err));
 
-  process.exit(0); // end the process
-}
+// Mount auth and appointment routes
+app.use("/api/auth", authRoutes);
+app.use("/appointments", appointmentRoutes);
+// Mount videoChat routes
+app.use("/", videoChatRoutes);
+app.use("/", chatSystemRoutes);
 
-run();
+// Start server
+
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => console.log(`🚀 Agora backend running on port ${PORT}`));
