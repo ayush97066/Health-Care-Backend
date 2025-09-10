@@ -12,8 +12,7 @@ async function run() {
       name: "Ayush",
       age: 23,
       email: "ayush@example.com",
-      skills: ["Java", "Spring Boot", "MongoDB"]
-    });
+      });
 
     await user.save();
     console.log("✅ User Created:", user);
@@ -25,3 +24,4 @@ async function run() {
 }
 
 run();
+
